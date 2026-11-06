@@ -55,6 +55,11 @@ tfoot td{font-weight:700}
 .msg{font-size:13px;color:var(--mut);margin:8px 2px;min-height:18px}
 .empty{color:var(--mut);text-align:center;padding:14px}
 .pc{display:block;text-align:right;font-size:11px;color:var(--mut);min-height:13px;margin-top:2px}
+#dsc{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;display:none;align-items:center;justify-content:center;padding:16px}
+#dsc.on{display:flex}
+#dsc .bx{background:var(--card);color:var(--tx);border-radius:16px;max-width:520px;width:100%;max-height:92vh;overflow:auto;padding:18px;border:1px solid var(--bd)}
+#dsc ol{padding-left:20px;margin:10px 0;font-size:14px;line-height:1.45}#dsc li{margin-bottom:8px}
+#dsc button.ok{width:100%;padding:12px;border:0;border-radius:10px;background:var(--ac);color:#fff;font-size:15px;font-weight:600}
 </style>
 </head>
 <body>
@@ -163,7 +168,8 @@ tfoot td{font-weight:700}
     <div class="msg">Valgono per gli straordinari festivi e notturni festivi quando l’opzione sopra è attiva. Se lasci vuoto vale la tariffa normale.</div>
   </div>
   <button class="sec" id="rr" style="width:100%">Azzera tariffe</button>
-  <div class="msg" style="text-align:center">Versione 1.0.1</div>
+  <button class="sec" id="dsb" style="width:100%;margin-top:8px">Leggi le avvertenze</button>
+  <div class="msg" style="text-align:center">Versione 1.0.2</div>
 </section>
 
 <div class="card" style="margin-top:12px">
@@ -179,6 +185,17 @@ tfoot td{font-weight:700}
 </main>
 
 <script src="vendor/jspdf.umd.min.js"></script>
+<div id="dsc" role="dialog" aria-modal="true" aria-labelledby="dst"><div class="bx">
+  <b id="dst" style="font-size:17px">Avvertenze importanti</b>
+  <ol>
+    <li><b>Strumento personale.</b> L’app serve a registrare le proprie ore e a ottenere una stima dei compensi. Non è un software di elaborazione paghe.</li>
+    <li><b>Possibili errori.</b> Tariffe, percentuali, fasce orarie e festività sono impostazioni modificabili e possono essere incomplete o non aggiornate. I contratti e gli accordi aziendali possono cambiare o prevedere regole diverse da quelle ipotizzate.</li>
+    <li><b>Nessuna responsabilità.</b> L’autore non si assume alcuna responsabilità per errori, omissioni o differenze tra i risultati dell’app e la busta paga, né per decisioni prese sulla base di tali risultati.</li>
+    <li><b>Nessun valore ufficiale.</b> Report, PDF ed esportazioni non sono documenti ufficiali e non vanno usati come prova o per contestazioni con il datore di lavoro. Per verifiche e rivendicazioni fai riferimento alla busta paga, al contratto collettivo applicato e agli uffici competenti (ufficio paghe, sindacato, consulente del lavoro).</li>
+    <li><b>Dati.</b> I dati restano sul dispositivo e non vengono inviati a terzi. Sei responsabile dei tuoi backup.</li>
+  </ol>
+  <button class="ok" id="dok">Ho capito</button>
+</div></div>
 <script>
 (function(){
 var KEY="ore-lavoro-v1", data=[], type=0;
@@ -507,7 +524,13 @@ $("vm0").onclick=function(){cfg.vm=0;saveCfg();render()};
 $("vm1").onclick=function(){cfg.vm=1;saveCfg();render()};
 if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){navigator.serviceWorker.register("sw.js").catch(function(){})}
 loadCfg();load();buildRates();buildRates2();buildRates3();loadFields();$("d").value=$("e").value=iso(today);preview();render();
+var DK="ore-lavoro-disclaimer-v1";
+function showDsc(){$("dsc").classList.add("on")}
+$("dok").onclick=function(){$("dsc").classList.remove("on");try{localStorage.setItem(DK,"1")}catch(e){}};
+$("dsb").onclick=showDsc;
+(function(){var ok="";try{ok=localStorage.getItem(DK)||""}catch(e){}if(!ok)showDsc()})();
 })();
+
 </script>
 </body>
 </html>
