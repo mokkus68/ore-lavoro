@@ -1,7 +1,7 @@
 // Service worker: l'app funziona anche senza connessione.
 // Strategia "prima la rete, poi la copia salvata": con internet si ottiene sempre
 // l'ultima versione, senza internet si usa quella già scaricata.
-const VERSIONE = "ore-lavoro-1.0.2";
+const VERSIONE = "ore-lavoro-1.0.3";
 const FILE = [
   "./",
   "./index.html",
