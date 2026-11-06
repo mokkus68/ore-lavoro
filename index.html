@@ -163,7 +163,7 @@ tfoot td{font-weight:700}
     <div class="msg">Valgono per gli straordinari festivi e notturni festivi quando l’opzione sopra è attiva. Se lasci vuoto vale la tariffa normale.</div>
   </div>
   <button class="sec" id="rr" style="width:100%">Azzera tariffe</button>
-  <div class="msg" style="text-align:center">Versione 1.0.0</div>
+  <div class="msg" style="text-align:center">Versione 1.0.1</div>
 </section>
 
 <div class="card" style="margin-top:12px">
@@ -173,6 +173,7 @@ tfoot td{font-weight:700}
     <button class="sec" id="rs">Ripristina backup</button>
   </div>
   <input type="file" id="fi" accept=".json,application/json" hidden>
+  <div class="msg" id="lastbk" style="margin-top:8px"></div>
   <div class="msg" id="msg"></div>
 </div>
 </main>
@@ -471,7 +472,13 @@ $("ey").onclick=function(){dl("report-annuale-"+cy+".csv",yearly())};
 $("pm").onclick=function(){if(needPdf())dl((cfg.vm===1?"busta-":"report-")+cy+"-"+pad(cm)+".pdf",pdfMonth())};
 $("py").onclick=function(){if(needPdf())dl("report-annuale-"+cy+".pdf",pdfYear())};
 $("ea").onclick=function(){dl("tutti-i-dati.csv",detail(data))};
-$("bk").onclick=function(){dl("backup-ore-"+iso(new Date())+".json",JSON.stringify({v:2,data:data,cfg:cfg}))};
+var LBK="ore-lavoro-lastbk-v1";
+function showLastBk(){var t="";try{t=localStorage.getItem(LBK)||""}catch(e){}
+  var el=$("lastbk");if(!t){el.textContent="Ultimo backup: mai eseguito";return}
+  var d=new Date(t);el.textContent="Ultimo backup: "+(isNaN(d)?"data non leggibile":d.toLocaleDateString("it-IT",{weekday:"short",day:"2-digit",month:"2-digit",year:"numeric"})+" alle "+d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"}))}
+$("bk").onclick=async function(){await dl("backup-ore-"+iso(new Date())+".json",JSON.stringify({v:2,data:data,cfg:cfg}));
+  try{localStorage.setItem(LBK,new Date().toISOString())}catch(e){} showLastBk()};
+showLastBk();
 $("rs").onclick=function(){$("fi").click()};
 $("fi").onchange=function(){
   var f=this.files[0];if(!f)return;var r=new FileReader();
