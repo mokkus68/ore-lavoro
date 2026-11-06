@@ -169,7 +169,7 @@ tfoot td{font-weight:700}
   </div>
   <button class="sec" id="rr" style="width:100%">Azzera tariffe</button>
   <button class="sec" id="dsb" style="width:100%;margin-top:8px">Leggi le avvertenze</button>
-  <div class="msg" style="text-align:center">Versione 1.0.3</div>
+  <div class="msg" style="text-align:center">Versione 1.0.4</div>
 </section>
 
 <div class="card" style="margin-top:12px">
@@ -446,11 +446,14 @@ function mkpdf(title,sub,cols,xs,rows,foot){
   var doc=new window.jspdf.jsPDF({unit:"mm",format:"a4"}),y=18;
   doc.setFont("helvetica","bold");doc.setFontSize(15);doc.text(title,14,y);y+=7;
   doc.setFont("helvetica","normal");doc.setFontSize(10);
-  sub.forEach(function(t){doc.text(t,14,y);y+=5.5});y+=3;
+  sub.forEach(function(t){doc.splitTextToSize(String(t),182).forEach(function(x){if(y>280){doc.addPage();y=18}doc.text(x,14,y);y+=5.5})});y+=3;
   function line(a,bold){
-    if(y>280){doc.addPage();y=18}
     doc.setFont("helvetica",bold?"bold":"normal");doc.setFontSize(9);
-    a.forEach(function(c,i){if(c!=="")doc.text(String(c),xs[i],y)});
+    var li=a.length-1,lw=196-xs[li]-1,ex=[];
+    if(a[li]!==""&&a[li]!==undefined){ex=doc.splitTextToSize(String(a[li]),lw);a=a.slice(0,li).concat([ex.shift()])}
+    if(y+ex.length*4.2>280){doc.addPage();y=18}
+    a.forEach(function(c,i){if(c!==""&&c!==undefined)doc.text(String(c),xs[i],y)});
+    ex.forEach(function(t){y+=4.2;doc.text(t,xs[li],y)});
     doc.setDrawColor(200);doc.line(14,y+1.8,196,y+1.8);y+=6;
   }
   line(cols,true);rows.forEach(function(r){line(r,false)});y+=2;foot.forEach(function(r){line(r,true)});
@@ -460,7 +463,7 @@ function mkpdf(title,sub,cols,xs,rows,foot){
 }
 function pdfMonth(){
   var l=sorted(monthList()),s=sums(l),B=sumsB(l);
-  var rows=l.map(function(e){var m=net(e);return [itd(e.d),e.a,itd(e.e),e.b,TN[e.t],hm(m),dec(m),String(e.n||"").slice(0,26)]});
+  var rows=l.map(function(e){var m=net(e);return [itd(e.d),e.a,itd(e.e),e.b,TN[e.t],hm(m),dec(m),String(e.n||"")]});
   return mkpdf("Report ore - "+monthLabel(),
     [0,2,1,3].map(function(i){return TN[i]+": "+dec(s[i])+" ore ("+hm(s[i])+")  [D "+dec(B[i][0])+"  N "+dec(B[i][1])+"  F "+dec(B[i][2])+"  FN "+dec(B[i][3])+"]"+(hasR()?"  "+eurp(amt(B,i)):"")}).concat(cfg.vm===1?[monthInfo()]:[],B.SC?["Maggiorazione domenicale (riposo compensativo): "+B.SC+" x "+eurp(sbv())]:[],hasR()?["Importo stimato totale: "+eurp(amtAll(B))]:[],(restSum(l)?[restSum(l)]:[]).concat(["D = diurno, N = notturno, F = festivo, FN = festivo notturno",stamp()])),
     ["Dal giorno","Dalle","Al giorno","Alle","Tipo","Ore h:mm","Ore cent.","Note"],[14,33,45,64,76,108,127,146],rows,
